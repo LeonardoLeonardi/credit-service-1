@@ -1,6 +1,10 @@
 import { testUtils } from "@keix/message-store-client";
 import { v4 } from "uuid";
-import { EventTypeCredit } from "../src/service/credits/types";
+import { runBalanceProjectorDelay } from "../src/service/credits/projector";
+import {
+  CommandTypeCredit,
+  EventTypeCredit,
+} from "../src/service/credits/types";
 import {
   runCardExistProjector,
   runVerifyAmountProjector,
@@ -260,4 +264,29 @@ it("should return true if there is an error", async () => {
   ]);
 
   expect(await runVerifyErrorProjector(idTrans)).toEqual(true);
+});
+it("should return delayed credit", async () => {
+  let idAccount1 = v4();
+  testUtils.setupMessageStore([
+    {
+      type: EventTypeCredit.CREDITS_EARNED_SCHEDULER,
+      stream_name: "creditAccount-" + idAccount1,
+      data: {
+        userId: idAccount1,
+        amount: 30,
+        dateValidation: new Date(2021, 7, 30),
+      },
+    },
+    {
+      type: EventTypeCredit.CREDITS_EARNED_SCHEDULER,
+      stream_name: "creditAccount-" + idAccount1,
+      data: {
+        userId: idAccount1,
+        amount: 60,
+        dateValidation: new Date(2021, 7, 30),
+      },
+    },
+  ]);
+
+  expect(await runBalanceProjectorDelay(idAccount1)).toEqual(90);
 });

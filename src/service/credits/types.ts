@@ -1,38 +1,88 @@
 import type { Message } from "@keix/message-store-client";
 
 export enum CommandTypeCredit {
+  EARN_DELAYED_CREDIT = "EARN_DELAYED_CREDIT",
   EARN_CREDITS = "EARN_CREDITS",
   USE_CREDITS = "USE_CREDITS",
 }
+export type EarnDelayedCredit = Message<
+  CommandTypeCredit.EARN_DELAYED_CREDIT,
+  {
+    userId: string;
+    amount: number;
+    transactionId?: string;
+    dateValidation: Date;
+    delayed?: boolean;
+  }
+>;
 
 export type EarnCredits = Message<
   CommandTypeCredit.EARN_CREDITS,
-  { id: string; amount: number; transactionId?: string }
+  {
+    userId: string;
+    amount: number;
+    transactionId?: string;
+    delayed?: boolean;
+    dateValidation: Date;
+  }
 >;
 export type UseCredits = Message<
   CommandTypeCredit.USE_CREDITS,
-  { id: string; amount: number; transactionId?: string }
+  {
+    userId: string;
+    amount: number;
+    transactionId?: string;
+    delayed?: boolean;
+    dateValidation: Date;
+  }
 >;
 
-export type CommandCredits = EarnCredits | UseCredits;
+export type CommandCredits = EarnDelayedCredit | EarnCredits | UseCredits;
 
 export enum EventTypeCredit {
   CREDITS_EARNED = "CREDITS_EARNED",
+  CREDITS_EARNED_SCHEDULER = "CREDITS_EARNED_SCHEDULER",
   CREDITS_USED = "CREDITS_USED",
   CREDITS_ERROR = "CREDITS_ERROR",
 }
 
+export type CreditsEarnedScheduler = Message<
+  EventTypeCredit.CREDITS_EARNED_SCHEDULER,
+  {
+    userId: string;
+    amount: number;
+    transactionId: string;
+    dateValidation: Date;
+    delayed: boolean;
+  }
+>;
 export type CreditsEarned = Message<
   EventTypeCredit.CREDITS_EARNED,
-  { id: string; amount: number; transactionId: string }
+  {
+    userId: string;
+    amount: number;
+    transactionId: string;
+    delayed: boolean;
+    dateValidation: Date;
+  }
 >;
 export type CreditsUsed = Message<
   EventTypeCredit.CREDITS_USED,
-  { id: string; amount: number; transactionId: string }
+  {
+    userId: string;
+    amount: number;
+    transactionId: string;
+    delayed: boolean;
+    dateValidation: Date;
+  }
 >;
 export type CreditsError = Message<
   EventTypeCredit.CREDITS_ERROR,
-  { id: string; type: string }
+  { userId: string; type: string; delayed: boolean; dateValidation: Date }
 >;
 
-export type EventCredits = CreditsEarned | CreditsUsed | CreditsError;
+export type EventCredits =
+  | CreditsEarned
+  | CreditsEarnedScheduler
+  | CreditsUsed
+  | CreditsError;

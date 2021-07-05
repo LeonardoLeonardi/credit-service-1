@@ -25,3 +25,23 @@ export async function runBalanceProjector(
     0
   );
 }
+export async function runBalanceProjectorDelay(
+  id: string,
+  until?: number
+): Promise<number> {
+  let datetime = new Date();
+  function reducer(res: number, next: EventCredits) {
+    if (
+      next.type === EventTypeCredit.CREDITS_EARNED_SCHEDULER &&
+      next.data.dateValidation > datetime
+    ) {
+      res += next.data.amount;
+    }
+    return Math.max(0, res);
+  }
+  return runProjector(
+    { streamName: `creditAccount-${id}`, untilPosition: until },
+    reducer,
+    0
+  );
+}

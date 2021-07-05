@@ -66,7 +66,13 @@ export enum EventTypeCard {
 
 export type GiftCardUpdated = Message<
   EventTypeCard.GIFT_CARD_UPDATED,
-  { id: string; amounts: number[] }
+  {
+    id: string;
+    amounts: number[];
+    name: string;
+    description: string;
+    image_url: string;
+  }
 >;
 export type GiftCardRemoved = Message<
   EventTypeCard.GIFT_CARD_REMOVED,
