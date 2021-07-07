@@ -42,12 +42,12 @@ export async function getTransactions(userId: string) {
 }
 
 export async function hasProcessedTransaction(
-  userId: string
+  transactionId: string
 ): Promise<Boolean> {
   try {
     let result = await client.get({
       index: index,
-      id: userId,
+      id: transactionId,
     });
     return true;
   } catch (err) {
@@ -60,7 +60,7 @@ async function handler(event: EventCredits) {
     (event.type == EventTypeCredit.CREDITS_EARNED ||
       event.type == EventTypeCredit.CREDITS_USED ||
       event.type == EventTypeCredit.CREDITS_EARNED_SCHEDULER) &&
-    (await hasProcessedTransaction(event.data.userId))
+    (await hasProcessedTransaction(event.data.transactionId))
   ) {
     return;
   }
