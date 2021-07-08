@@ -1,6 +1,9 @@
 import { testUtils } from "@keix/message-store-client";
 import { v4 } from "uuid";
-import { runBalanceProjectorDelay } from "../src/service/credits/projector";
+import {
+  runBalanceProjector,
+  runBalanceProjectorDelay,
+} from "../src/service/credits/projector";
 import {
   CommandTypeCredit,
   EventTypeCredit,
@@ -274,7 +277,7 @@ it("should return delayed credit", async () => {
       data: {
         userId: idAccount1,
         amount: 30,
-        dateValidation: new Date(2021, 7, 30),
+        creditDate: new Date(2021, 7, 30),
       },
     },
     {
@@ -283,10 +286,44 @@ it("should return delayed credit", async () => {
       data: {
         userId: idAccount1,
         amount: 60,
-        dateValidation: new Date(2021, 7, 30),
+        creditDate: new Date(2021, 7, 30),
       },
     },
   ]);
 
   expect(await runBalanceProjectorDelay(idAccount1)).toEqual(90);
+});
+it("should return credit", async () => {
+  let idAccount1 = v4();
+  testUtils.setupMessageStore([
+    {
+      type: EventTypeCredit.CREDITS_EARNED,
+      stream_name: "creditAccount-" + idAccount1,
+      data: {
+        userId: idAccount1,
+        amount: 30,
+        creditDate: new Date(2021, 7, 30),
+      },
+    },
+    {
+      type: EventTypeCredit.CREDITS_EARNED,
+      stream_name: "creditAccount-" + idAccount1,
+      data: {
+        userId: idAccount1,
+        amount: 60,
+        creditDate: new Date(2021, 7, 30),
+      },
+    },
+    {
+      type: EventTypeCredit.CREDITS_USED,
+      stream_name: "creditAccount-" + idAccount1,
+      data: {
+        userId: idAccount1,
+        amount: 20,
+        creditDate: new Date(2021, 7, 30),
+      },
+    },
+  ]);
+
+  expect(await runBalanceProjector(idAccount1)).toEqual(70);
 });

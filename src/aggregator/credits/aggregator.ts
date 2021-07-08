@@ -2,7 +2,10 @@ import { subscribe, combineSubscriber } from "@keix/message-store-client";
 import { EventCredits, EventTypeCredit } from "../../service/credits/types";
 import Redis from "ioredis";
 import { Client } from "@elastic/elasticsearch";
-import { runBalanceProjectorDelay } from "../../service/credits/projector";
+import {
+  runBalanceProjector,
+  runBalanceProjectorDelay,
+} from "../../service/credits/projector";
 
 const index = "usertxleonardo";
 let redisClient = new Redis();
@@ -14,7 +17,7 @@ interface UserTransaction {
   userId: string;
   time: Date;
   delayed: boolean;
-  dateValidation: Date;
+  creditDate: Date;
 }
 
 let direction = "asc";
@@ -66,10 +69,11 @@ async function handler(event: EventCredits) {
   }
   switch (event.type) {
     case EventTypeCredit.CREDITS_EARNED: {
-      await redisClient.hincrby(
+      //Si deve mettere hset con il projector e aggiungere refresh se da problemi di version conflict
+      await redisClient.hset(
         "userBalance",
         event.data.userId,
-        event.data.amount
+        await runBalanceProjector(event.data.userId)
       );
 
       let transaction: UserTransaction = {
@@ -78,7 +82,7 @@ async function handler(event: EventCredits) {
         userId: event.data.userId,
         time: event.time,
         delayed: false,
-        dateValidation: event.data.dateValidation,
+        /* Cambiare dateValidation */ creditDate: event.data.creditDate,
       };
 
       await redisClient.hset(
@@ -86,21 +90,12 @@ async function handler(event: EventCredits) {
         event.data.userId,
         await runBalanceProjectorDelay(event.data.userId)
       );
-      if (event.data.delayed) {
-        return await client.update({
-          index: index,
-          id: event.data.transactionId,
-          body: transaction,
-          refresh: true,
-        });
-      } else {
-        return await client.index({
-          index: index,
-          id: event.data.transactionId,
-          refresh: true,
-          body: transaction,
-        });
-      }
+      return client.index({
+        index: index,
+        id: event.data.transactionId,
+        refresh: true,
+        body: transaction,
+      });
     }
     case EventTypeCredit.CREDITS_EARNED_SCHEDULER: {
       await redisClient.hset(
@@ -114,7 +109,7 @@ async function handler(event: EventCredits) {
         userId: event.data.userId,
         time: event.time,
         delayed: true,
-        dateValidation: event.data.dateValidation,
+        creditDate: event.data.creditDate,
       };
       return await client.index({
         index: index,
@@ -124,10 +119,10 @@ async function handler(event: EventCredits) {
       });
     }
     case EventTypeCredit.CREDITS_USED: {
-      await redisClient.hincrby(
+      await redisClient.hset(
         "userBalance",
         event.data.userId,
-        -event.data.amount
+        await runBalanceProjector(event.data.userId)
       );
 
       let transaction: UserTransaction = {
@@ -136,10 +131,10 @@ async function handler(event: EventCredits) {
         userId: event.data.userId,
         time: event.time,
         delayed: false,
-        dateValidation: event.data.dateValidation,
+        creditDate: event.data.creditDate,
       };
 
-      return await client.index({
+      return client.index({
         index: index,
         id: event.data.transactionId,
         refresh: true,

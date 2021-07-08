@@ -33,7 +33,7 @@ export async function runBalanceProjectorDelay(
   function reducer(res: number, next: EventCredits) {
     if (
       next.type === EventTypeCredit.CREDITS_EARNED_SCHEDULER &&
-      next.data.dateValidation > datetime
+      next.data.creditDate > datetime
     ) {
       res += next.data.amount;
     }

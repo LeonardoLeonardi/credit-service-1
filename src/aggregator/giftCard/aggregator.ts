@@ -10,10 +10,7 @@ import { Client } from "@elastic/elasticsearch";
 const index = "giftcardleonardo";
 
 const client = new Client({ node: "https://dev.elastic.keix.com" });
-interface UserTransaction {
-  id: string;
-  amount: number;
-}
+
 export async function getCardAmounts(cardId: string) {
   try {
     const result = await client.get({
@@ -82,6 +79,7 @@ async function handler(event: EventCard) {
           description: event.data.description,
           amounts: event.data.amounts,
         },
+        refresh: true,
       });
       return;
     }
@@ -95,6 +93,7 @@ async function handler(event: EventCard) {
             amounts: event.data.amounts,
           },
         },
+        refresh: true,
       });
       return;
     }
@@ -102,6 +101,7 @@ async function handler(event: EventCard) {
       client.delete({
         index: index,
         id: event.data.id,
+        refresh: true,
       });
       return;
     }

@@ -38,9 +38,9 @@ async function handler(cmd: CommandCredits) {
           commandData: {
             userId: cmd.data.userId,
             amount: cmd.data.amount,
-            dateValidation: cmd.data.dateValidation,
+            creditDate: cmd.data.creditDate,
           },
-          date: cmd.data.dateValidation,
+          date: cmd.data.creditDate,
           rate: SchedulerRate.NONE,
         },
       });
@@ -53,7 +53,7 @@ async function handler(cmd: CommandCredits) {
           transactionId: cmd.data.transactionId ?? v4(),
           amount: cmd.data.amount,
           delayed: true,
-          dateValidation: cmd.data.dateValidation,
+          creditDate: cmd.data.creditDate,
         },
       });
 
@@ -68,7 +68,7 @@ async function handler(cmd: CommandCredits) {
             transactionId: cmd.data.transactionId ?? v4(),
             delayed: cmd.data.delayed ?? false,
             amount: cmd.data.amount,
-            dateValidation: cmd.data.dateValidation,
+            creditDate: cmd.data.creditDate,
           },
         });
       } else {
@@ -85,7 +85,7 @@ async function handler(cmd: CommandCredits) {
             userId: cmd.data.userId,
             transactionId: cmd.data.transactionId ?? v4(),
             amount: cmd.data.amount,
-            dateValidation: cmd.data.dateValidation,
+            creditDate: cmd.data.creditDate,
           },
         });
       } else {

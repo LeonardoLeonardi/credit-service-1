@@ -11,7 +11,7 @@ export type EarnDelayedCredit = Message<
     userId: string;
     amount: number;
     transactionId?: string;
-    dateValidation: Date;
+    creditDate: Date;
     delayed?: boolean;
   }
 >;
@@ -23,7 +23,7 @@ export type EarnCredits = Message<
     amount: number;
     transactionId?: string;
     delayed?: boolean;
-    dateValidation: Date;
+    creditDate: Date;
   }
 >;
 export type UseCredits = Message<
@@ -33,7 +33,7 @@ export type UseCredits = Message<
     amount: number;
     transactionId?: string;
     delayed?: boolean;
-    dateValidation: Date;
+    creditDate: Date;
   }
 >;
 
@@ -52,7 +52,7 @@ export type CreditsEarnedScheduler = Message<
     userId: string;
     amount: number;
     transactionId: string;
-    dateValidation: Date;
+    creditDate: Date;
     delayed: boolean;
   }
 >;
@@ -63,7 +63,7 @@ export type CreditsEarned = Message<
     amount: number;
     transactionId: string;
     delayed: boolean;
-    dateValidation: Date;
+    creditDate: Date;
   }
 >;
 export type CreditsUsed = Message<
@@ -73,12 +73,12 @@ export type CreditsUsed = Message<
     amount: number;
     transactionId: string;
     delayed: boolean;
-    dateValidation: Date;
+    creditDate: Date;
   }
 >;
 export type CreditsError = Message<
   EventTypeCredit.CREDITS_ERROR,
-  { userId: string; type: string; delayed: boolean; dateValidation: Date }
+  { userId: string; type: string; delayed: boolean; creditDate: Date }
 >;
 
 export type EventCredits =

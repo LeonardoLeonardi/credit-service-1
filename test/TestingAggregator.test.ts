@@ -16,7 +16,7 @@ it("should return a positive balance", async () => {
   let idTrans1 = v4();
   let idTrans2 = v4();
   let dateToday = new Date();
-  let dateNew = new Date(2021, 6, 28);
+  let dateNew = new Date(2021, 7, 28);
   let datePast = new Date(2021, 5, 28);
   testUtils.setupMessageStore([
     {
@@ -27,7 +27,7 @@ it("should return a positive balance", async () => {
         userId: idAccount1,
         amount: 30,
         transactionId: idTrans1,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
     {
@@ -38,7 +38,7 @@ it("should return a positive balance", async () => {
         userId: idAccount1,
         amount: 30,
         transactionId: idTrans2,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
   ]);
@@ -52,7 +52,7 @@ it("should return a positive balance", async () => {
       userId: idAccount1,
       time: datePast.toISOString(),
       delayed: false,
-      dateValidation: dateToday.toISOString(),
+      creditDate: dateToday.toISOString(),
     });
     expect(res[1]._source).toEqual({
       id: idTrans1,
@@ -60,7 +60,7 @@ it("should return a positive balance", async () => {
       userId: idAccount1,
       time: dateNew.toISOString(),
       delayed: false,
-      dateValidation: dateToday.toISOString(),
+      creditDate: dateToday.toISOString(),
     });
   });
 });
@@ -70,7 +70,7 @@ it("should return a 0 balance", async () => {
   let idTrans1 = v4();
   let idTrans2 = v4();
   let dateToday = new Date();
-  let dateNew = new Date(2021, 6, 28);
+  let dateNew = new Date(2021, 7, 28);
   let datePast = new Date(2021, 5, 28);
   testUtils.setupMessageStore([
     {
@@ -81,7 +81,7 @@ it("should return a 0 balance", async () => {
         userId: idAccount1,
         amount: 300,
         transactionId: idTrans1,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
     {
@@ -93,7 +93,7 @@ it("should return a 0 balance", async () => {
         userId: idAccount1,
         amount: 300,
         transactionId: idTrans2,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
   ]);
@@ -106,7 +106,7 @@ it("should return a 0 balance", async () => {
       userId: idAccount1,
       time: datePast.toISOString(),
       delayed: false,
-      dateValidation: dateToday.toISOString(),
+      creditDate: dateToday.toISOString(),
     });
     expect(res[1]._source).toEqual({
       id: idTrans1,
@@ -114,7 +114,7 @@ it("should return a 0 balance", async () => {
       userId: idAccount1,
       time: dateNew.toISOString(),
       delayed: false,
-      dateValidation: dateToday.toISOString(),
+      creditDate: dateToday.toISOString(),
     });
   });
 });
@@ -125,8 +125,8 @@ it("should return balance", async () => {
   let idTrans2 = v4();
   let idTrans3 = v4();
   let dateToday = new Date();
-  let dateNew = new Date(2021, 6, 28);
-  let dateNew2 = new Date(2021, 6, 27);
+  let dateNew = new Date(2021, 7, 28);
+  let dateNew2 = new Date(2021, 7, 27);
   let datePast = new Date(2021, 5, 28);
   testUtils.setupMessageStore([
     {
@@ -137,7 +137,7 @@ it("should return balance", async () => {
         userId: idAccount1,
         amount: 300,
         transactionId: idTrans1,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
     {
@@ -148,7 +148,7 @@ it("should return balance", async () => {
         userId: idAccount1,
         amount: 100,
         transactionId: idTrans2,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
     {
@@ -159,7 +159,7 @@ it("should return balance", async () => {
         userId: idAccount1,
         amount: 200,
         transactionId: idTrans3,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
   ]);
@@ -172,7 +172,7 @@ it("should return balance", async () => {
       userId: idAccount1,
       time: datePast.toISOString(),
       delayed: false,
-      dateValidation: dateToday.toISOString(),
+      creditDate: dateToday.toISOString(),
     });
     expect(res[1]._source).toEqual({
       id: idTrans3,
@@ -180,7 +180,7 @@ it("should return balance", async () => {
       userId: idAccount1,
       time: dateNew2.toISOString(),
       delayed: false,
-      dateValidation: dateToday.toISOString(),
+      creditDate: dateToday.toISOString(),
     });
     expect(res[2]._source).toEqual({
       id: idTrans1,
@@ -188,7 +188,7 @@ it("should return balance", async () => {
       userId: idAccount1,
       time: dateNew.toISOString(),
       delayed: false,
-      dateValidation: dateToday.toISOString(),
+      creditDate: dateToday.toISOString(),
     });
   });
 });
@@ -196,9 +196,11 @@ it("should return balance delayed", async () => {
   let idAccount1 = v4();
   let idTrans1 = v4();
   let idTrans2 = v4();
+  let idTrans3 = v4();
+
   let dateToday = new Date();
 
-  let dateNew = new Date(2021, 6, 28);
+  let dateNew = new Date(2021, 7, 28);
   let datePast = new Date(2021, 5, 28);
   testUtils.setupMessageStore([
     {
@@ -209,7 +211,7 @@ it("should return balance delayed", async () => {
         userId: idAccount1,
         amount: 100,
         transactionId: idTrans1,
-        dateValidation: dateToday,
+        creditDate: dateToday,
       },
     },
     {
@@ -220,18 +222,20 @@ it("should return balance delayed", async () => {
       data: {
         userId: idAccount1,
         amount: 300,
-        dateValidation: new Date(2021, 7, 30),
+        transactionId: idTrans2,
+        creditDate: new Date(2021, 7, 30),
       },
     },
     {
       type: EventTypeCredit.CREDITS_EARNED_SCHEDULER,
       stream_name: "creditAccount-" + idAccount1,
       time: datePast,
-
       data: {
         userId: idAccount1,
         amount: 300,
-        dateValidation: new Date(2021, 7, 30),
+        transactionId: idTrans3,
+
+        creditDate: new Date(2021, 7, 30),
       },
     },
   ]);
